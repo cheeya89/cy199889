@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DATA TASK2_Chen Yi</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            table-layout: fixed; 
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            white-space: nowrap; 
+            overflow: hidden;
+            text-overflow: ellipsis;
+            
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tbody {
+            display: block;
+            max-height: 450px;
+            overflow-y: auto;
+        }
+        thead, tbody tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;      
+        }
+         
+        th:nth-child(2), td:nth-child(2) { width: 30%; }
+     
+        /* Hover effect */
+        tbody tr:hover {
+            background-color: #cceb97;
+        }
+    </style>
+</head>
+<body>
+    <h1>Ride_data Table</h1>
+    <div id="table-container"></div>
+
+    <script>
+        // Data provided
+        const data = `type,name,distance,time,total_ascent
+        Road,"22/09/2013 Stoke On Trent,…",61.1,2:45:01,1133
+        Road,15/08/2013 I wonder where this road…,72.5,2:32:21,534
+        Road,UK: Ride to the centre of UK. Easy pace.,67.1,2:16:31,7245
+        Ride,"04/19/2014 Tittensor, England, United…",76.2,2:26:14,499
+        Ride,"05/06/2012 Swadlincote, Derbyshire,…",64.5,2:18:15,29918
+        Ride,meynall arms,63.2,2:17:46,262
+        Road,Uttoxeter,68.6,2:41:53,456
+        Road,"01/20/2014 Brassington, England, United…",66.4,2:42:24,969
+        Road,"11/22/2013 Brassington, England, United…",60.3,2:25:25,676
+        Commute,"03/14/2014 Brassington, England, United…",72.2,3:01:40,974
+        Commute,"02/18/2014 Brassington, England, United…",63.3,2:41:28,914
+        Road,"04/14/2014 Brassington, England, United…",71.6,2:59:27,885
+        MTB,"27/05/11 Swadlincote, Derbyshire,…",68.3,3:51:03,10565
+        Road,Hanbury circuit recce,79.7,2:51:49,641
+        Road,Clubrun &amp; Crich,68.5,2:22:08,922
+        Ride,Pollon is pain,79.3,2:41:44,1086
+        Ride,Dirty girls &amp; filthy climbs,69.9,2:45:38,1212
+        Ride,Better bikes are better,65.8,2:31:14,1078
+        Road,06/10/2013 Newcastle-under-Lyme…,72.5,2:32:39,639
+        Ride,Windy out,70.7,2:44:34,245
+        Road,...And Back,65,2:29:14,702
+        Cross,The Tale of Two Trails and an early…,67.5,3:01:11,760
+        Ride,"05/26/2014 Wolverhampton, England,…",72.8,2:42:12,657
+        Ride,"04/08/2014 Wolverhampton, England,…",76.2,3:00:37,679
+        Ride,"04/11/2014 Wolverhampton, England,…",75.5,2:50:43,653
+        Ride,"06/03/2014 Wolverhampton, England,…",72.7,2:43:08,638
+        Road,"04/19/2014 Buxton SK17, UK, England,…",70.2,3:32:10,1402
+        Road,1st Ride of the year !,70.2,3:13:45,515
+        Road,Sunday morning Skyride with Oliver,73.3,3:12:20,520
+        Road,Steady ride with Will and Ollie,60.3,2:29:09,472
+        Road,"02/22/2014 Sandbach, England, United…",71.2,2:40:26,602
+        Road,"12/09/2012 Hope Valley, UK, England,…",62.5,25:14,6760
+        MTB,D&amp;W Trailquest: Holymoorside. Rubbish…,38.7,2:03:29,5313
+        Ride,50 miles with Steve Orr,79.2,2:57:20,311
+        Road,10/08/2013 SCC B,66.5,2:19:20,530
+        Road,"27/10/2013 Chesterfield, Derbyshire,…",77.4,3:02:38,1274
+        Road,"03/11/2013 Chesterfield, Derbyshire,…",61.6,2:19:22,873
+        Ride,"06/08/2013 Wombourne, England, United…",64.8,2:44:07,31709
+        Road,"02/02/2014 Chesterfield, Derbyshire,…",71.3,3:03:14,1403
+        Road,Nantwich - Warmingham - Jodrell Bank -…,65.7,3:23:28,158
+        Road,"29/01/2013 Birmingham, West Midlands,…",71.3,2:45:36,10709
+        Ride,"06/10/2014 Chesterfield, England,…",73.5,2:24:11,877
+        Road,"04/14/2014 Macclesfield SK11, UK,…",61.2,2:07:03,853
+        Ride,"07/06/2013 Telford, England, United…",68.1,2:55:11,985
+        Ride,"06/12/2014 Chesterfield, England,…",72.3,2:28:29,808
+        Ride,"11/30/2013 Chesterfield, England,…",63.6,2:18:57,814
+        Ride,"05/20/2014 Chesterfield, England,…",70,2:22:43,961
+        Ride,"01/25/2014 Chesterfield, England,…",64.1,2:35:53,897
+        Ride,"04/26/2014 Chesterfield, England,…",67.9,3:01:09,1153
+        Ride,"06/03/2014 Chesterfield, England,…",77.8,2:40:28,792
+        Ride,"05/17/2014 Chesterfield, England,…",69.1,2:27:03,877
+        Ride,"03/01/2014 Chesterfield, England,…",64.4,2:30:45,719
+        Ride,"03/02/2014 Chesterfield, England,…",66.6,2:36:16,910
+        Ride,"04/06/2014 Chesterfield, England,…",75.9,3:02:35,1248
+        Ride,"04/28/2014 Chesterfield, England,…",64.9,2:17:05,846
+        Ride,"5/11/14 Chesterfield, England, United…",77.8,2:57:08,1214
+        Ride,Evening Ride,60,46:36,125
+        Road,1st Sunday TNT ride,77.9,2:41:59,813
+        Road,TNT ride,65.5,2:22:07,797
+        Ride,2 Spoken Brokes,76.9,3:31:18,1207
+        Ride,Steady Saturday Solo Cycle,78.3,3:20:29,1134
+        Road,Perfect weather ride with Rich and Dan,60.5,2:48:11,972
+        Road,"29/12/2013 Marple, England, United…",74.6,3:17:40,10919
+        Road,"17/08/2013 Marple, England, United…",69.9,2:56:39,10575
+        Road,"11/23/2013 Shirley, West Midlands,…",61.5,2:23:58,8436
+        Road,Polocini tuesday chaingang,71.3,2:26:15,305
+        Ride,Mid week miles,78.6,2:42:18,328
+        Ride,Steady ride in the hills,71.9,2:50:27,1385
+        Ride,Brickworks and sprint efforts,72.3,2:51:14,817
+        Ride,TT Training,77.9,3:03:38,303
+        Road,'zone 2' but not going to plan..,79.3,2:41:24,388
+        Ride,Afternoon Ride,76,4:38:22,126
+        MTB,exploring Greater Manchester,64.7,2:45:48,592
+        Road,Hills with the polocini crew,70,2:55:06,843
+        Ride,"05/14/2014 City Centre, England, United…",60,2:27:35,1041
+        Road,A little bit of everything.,69.7,2:50:16,804
+        Road,"03/08/2013 Sheffield, South Yorkshire,…",62.3,2:43:13,846
+        Ride,Early Clubrun,74.2,2:52:50,915
+        Road,"01/09/2013 Manchester, Greater…",78.8,2:52:51,916
+        Ride,BITS Sunday Ride,75.8,3:17:22,460
+        Ride,"03/02/2014 Bromsgrove, England, United…",74.1,3:12:56,466
+        Road,"10/20/2013 Sale, Greater Manchester,…",61.4,2:47:50,10423
+        Ride,Monday Nighter,70.1,1:57:41,776
+        Ride,Morning Ride,64.6,2:07:30,12
+        Road,"16/03/2014 Warwick, Warwickshire, UK,…",65,2:48:52,433
+        Ride,"03/01/2014 Walton, England, United…",60.7,2:20:59,356
+        Ride,"04/12/2014 Walton, England, United…",60.8,2:37:43,647
+        Ride,"04/26/2014 Warrington, England, United…",71.8,2:58:06,116
+        Ride,"12/24/2013 Warrington, England, United…",71.2,1:45:21,14966
+        Ride,"11/09/2013 Warrington, England, United…",78.5,2:43:31,17807`;
+
+        // Parse the CSV data
+        const parsedData = d3.csvParse(data);
+
+        // Calculate ascent per mile for each ride
+        parsedData.forEach(d => {
+            d.ascent_per_mile = +d.total_ascent / +d.distance;
+            d.distance = +d.distance; 
+            d.total_ascent = +d.total_ascent; 
+        });
+        
+        // Sort state
+        let isAscending = true;
+
+        // Create the table
+        const table = d3.select("#table-container")
+            .append("table");
+
+        // Create table header
+        const thead = table.append("thead");
+        const headers = thead.append("tr")
+            .selectAll("th")
+            .data([...parsedData.columns, 'Ascent Per Mile']) 
+            .join("th")
+            .text(d => d)
+            .on("click", function(event, d) {
+                // Add sorting functionality for 'Ascent Per Mile' column
+                if (d === 'Ascent Per Mile') {
+                    parsedData.sort((a, b) => isAscending ? d3.ascending(a.ascent_per_mile, b.ascent_per_mile) : d3.descending(a.ascent_per_mile, b.ascent_per_mile));
+                    isAscending = !isAscending; 
+                    updateTable();
+                }
+            });
+
+        // Create table body
+        const tbody = table.append("tbody");
+
+        function updateTable() {
+            const rows = tbody.selectAll("tr")
+                .data(parsedData)
+                .join("tr");
+
+            // Create or update table cells
+            rows.selectAll("td")
+                .data(d => [d.type, d.name, d.distance, d.time, d.total_ascent, d.ascent_per_mile]) 
+                .join("td")
+                .text(d => typeof d === 'number' ? d.toFixed(2) : d);
+        }
+
+        // Initial table update
+        updateTable();
+    
+    </script>
+
+    <h1>Scatter Plot to Spot Outliers</h1>
+    <svg width="700" height="600"></svg>
+    <div id="tooltip" style="position: absolute; visibility: hidden; padding: 10px; background-color: #f9f9f9; border: 1px solid #d3d3d3; border-radius: 5px; text-align: center; font-size: 12px; color: #333;"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const svgWidth = 700, svgHeight = 600;
+            const margin = {top: 20, right: 20, bottom: 70, left: 50};
+            const width = svgWidth - margin.left - margin.right;
+            const height = svgHeight - margin.top - margin.bottom;
+
+            // Create SVG container
+            const svg = d3.select("svg")
+                .attr("width", svgWidth)
+                .attr("height", svgHeight)
+              .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            // Create scales
+            const x = d3.scaleLinear().range([0, width]);
+            const y = d3.scaleLinear().range([height, 0]);
+            const color = d3.scaleOrdinal(d3.schemeDark2);
+
+            // Define the domains
+            x.domain(d3.extent(parsedData, d => d.distance)).nice();
+            y.domain(d3.extent(parsedData, d => d.total_ascent)).nice();
+
+            // Tooltip div selection
+            const tooltip = d3.select("#tooltip");
+
+            // Add the scatter dots
+            svg.selectAll(".dot")
+                .data(parsedData) 
+                .enter().append("circle")
+                .attr("class", "dot")
+                .attr("r", 3) // Original radius
+                .attr("cx", d => x(d.distance))
+                .attr("cy", d => y(d.total_ascent))
+                .style("fill", d => color(d.type))
+                .on("mouseover", function(event, d) {
+                    d3.select(this).transition()
+                        .duration(150)
+                        .attr("r", 8); // Enlarge dot radius
+
+                    tooltip.html(`Type: ${d.type}<br>Distance: ${d.distance} <br>Total Ascent: ${d.total_ascent} `)
+                        .style("visibility", "visible")
+                        .style("left", (event.pageX + 5) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function() {
+                    d3.select(this).transition()
+                        .duration(150)
+                        .attr("r", 3); 
+
+                    tooltip.style("visibility", "hidden");
+                });
+
+            // Add the X Axis
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x))
+              .append("text")
+                .attr("fill", "#000")
+                .attr("x", width / 2)
+                .attr("y", margin.bottom - 10)
+                .attr("text-anchor", "end")
+                .text("Distance");
+
+            // Add the Y Axis
+            svg.append("g")
+                .call(d3.axisLeft(y))
+              .append("text")
+                .attr("fill", "#000")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -margin.left + 1)
+                .attr("x", -height / 2)
+                .attr("dy", "1em")
+                .attr("text-anchor", "middle")
+                .text("Total Ascent");
+
+            // Add a legend
+            const legend = svg.selectAll(".legend")
+                .data(color.domain())
+              .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", (d, i) => `translate(0,${i * 20})`);
+
+            legend.append("rect")
+                .attr("x", width - 18)
+                .attr("width", 18)
+                .attr("height", 18)
+                .style("fill", color);
+
+            legend.append("text")
+                .attr("x", width - 24)
+                .attr("y", 9)
+                .attr("dy", ".35em")
+                .style("text-anchor", "end")
+                .text(d => d);
+        });
+
+    </script>
+</body>
+</html>
